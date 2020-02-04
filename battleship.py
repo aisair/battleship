@@ -3,26 +3,30 @@
 # randomly placed vertically or horizontally on the board. To get an A, there must be a computer playing a person
 # player.
 
+from prettytable import PrettyTable
 from colorama import init, Fore
 import random
 import time
 
 init()  # initiate colorama for colorful text
 
-# begin by creating a the game-board. For ths level it will be a 5x5 units and initially will be set to show all "-"'s
-game_board = []
 number_turns = 12
-# append a row of 5 "-'s"
-for x in range(0, 5):
-    game_board.append(["-"] * 5)
 
+# start with a 5 by 5 board
+game_board = PrettyTable()
+board_info = [[], [], [], [], []]
+board_info[0].append("-")
 
 # function to print the board
-def print_board(board):
-    for row in board:
-        print(" ".join(row))
+game_board.clear()
+game_board.field_names = ["", "1", "2", "3", "4", "5"]
+game_board.add_row(["A", board_info[0][0], board_info[0][1], board_info[0][2], board_info[0][3], board_info[0][4]])
+game_board.add_row(["B", board_info[1][0], board_info[1][1], board_info[1][2], board_info[1][3], board_info[1][4]])
+game_board.add_row(["C", board_info[2][0], board_info[0][1], board_info[2][2], board_info[2][3], board_info[2][4]])
+game_board.add_row(["D", board_info[3][0], board_info[0][1], board_info[3][2], board_info[3][3], board_info[3][4]])
+game_board.add_row(["E", board_info[4][0], board_info[0][1], board_info[4][2], board_info[4][3], board_info[4][4]])
 
-
+"""
 print(
     "Welcome to Battleship! There is one ship that is one unit long.\nThe board is a 5 x 5 grid. You will get"
     , number_turns, "guesses to find the ship. Good luck!")
@@ -60,6 +64,8 @@ print("ship column:", ship_column + 1)
 # battleship game, you will need to enter inputs as "C4" or "D5". so the this row input should be a letter in the
 # version you build.
 for current_turn in range(number_turns):
+    guess_row = 0
+    guess_column = 0
     print("You are on turn ", current_turn + 1, "of", number_turns)
     guess = input("Input guess: ")
     if len(guess) != 2:
@@ -103,3 +109,4 @@ for current_turn in range(number_turns):
         print("You have one ship remaining. It is a 1 x 1 unit.")
 
 # Convert Letters to numbers.
+"""
