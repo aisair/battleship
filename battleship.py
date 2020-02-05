@@ -12,26 +12,38 @@ init()  # initiate colorama for colorful text
 
 number_turns = 12
 
-# start with a 5 by 5 board
+# start with a 5 by 5 board filled with "O"s
 game_board = PrettyTable()
-board_info = [[], [], [], [], []]
-board_info[0].append("-")
+board_rows = 5
+board_columns = 5
+board_info = []
+i = 0
+while i < board_rows:
+    board_info.append([])
+    j = 0
+    while j < board_columns:
+        board_info[i].append("O")
+        j += 1
+    i += 1
+
 
 # function to print the board
-game_board.clear()
-game_board.field_names = ["", "1", "2", "3", "4", "5"]
-game_board.add_row(["A", board_info[0][0], board_info[0][1], board_info[0][2], board_info[0][3], board_info[0][4]])
-game_board.add_row(["B", board_info[1][0], board_info[1][1], board_info[1][2], board_info[1][3], board_info[1][4]])
-game_board.add_row(["C", board_info[2][0], board_info[0][1], board_info[2][2], board_info[2][3], board_info[2][4]])
-game_board.add_row(["D", board_info[3][0], board_info[0][1], board_info[3][2], board_info[3][3], board_info[3][4]])
-game_board.add_row(["E", board_info[4][0], board_info[0][1], board_info[4][2], board_info[4][3], board_info[4][4]])
+def print_board():
+    game_board.clear()
+    game_board.field_names = ["", "1", "2", "3", "4", "5"]
+    game_board.add_row(["A", board_info[0][0], board_info[0][1], board_info[0][2], board_info[0][3], board_info[0][4]])
+    game_board.add_row(["B", board_info[1][0], board_info[1][1], board_info[1][2], board_info[1][3], board_info[1][4]])
+    game_board.add_row(["C", board_info[2][0], board_info[0][1], board_info[2][2], board_info[2][3], board_info[2][4]])
+    game_board.add_row(["D", board_info[3][0], board_info[0][1], board_info[3][2], board_info[3][3], board_info[3][4]])
+    game_board.add_row(["E", board_info[4][0], board_info[0][1], board_info[4][2], board_info[4][3], board_info[4][4]])
+    print(game_board)
 
-"""
+
 print(
     "Welcome to Battleship! There is one ship that is one unit long.\nThe board is a 5 x 5 grid. You will get"
     , number_turns, "guesses to find the ship. Good luck!")
 
-print_board(game_board)
+print_board()
 
 # Start the game play. If  you want to add delays, so the game plays more naturally use time.sleep(seconds)
 time.sleep(1)
@@ -87,7 +99,7 @@ for current_turn in range(number_turns):
     if guess_row == ship_row and guess_column == ship_column:
         game_board[guess_row][guess_column] = Fore.RED + "X" + Fore.RESET
         # This is a hit
-        print_board(game_board)
+        print_board()
         print("You sank my battleship!")
         break
     else:
@@ -102,11 +114,10 @@ for current_turn in range(number_turns):
         if current_turn == number_turns - 1:
             print("You have ran out of turns. The game is over!")
             print("The ship was at row %d and column %d" % ship_row, ship_column)
-        print_board(game_board)
+        print_board()
 
         # Your print statement should should update how many ships are remaining and how many are sunk from your set of
         # ships.
         print("You have one ship remaining. It is a 1 x 1 unit.")
 
 # Convert Letters to numbers.
-"""
