@@ -52,11 +52,11 @@ time.sleep(1)
 # We need to randomly place the ship on the board. The x-coordinate should have value between 0 and 4. If this were a
 # C, B or A level project you would also have to randomly choose vertical or horizontal
 def random_row(board):
-    return random.randint(0, len(board) - 1)
+    return random.randint(0, len(board_info) - 1)
 
 
 def random_column(board):
-    return random.randint(0, len(board[0]) - 1)
+    return random.randint(0, len(board_info[0]) - 1)
 
 
 # The C level will need an extra function and variable to keep track of vertical or horizontal for the 3 x 1 ship.
