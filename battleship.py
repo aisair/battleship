@@ -14,14 +14,19 @@ number_turns = 12
 
 
 class Coordinate:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
     x = 0
     y = 0
 
 
 class Ship:
-    orientation_vert = 0
-    coord_1 = [0, 0]  # stylized x, y
-    coord_2 = [0, 0]
+    def __init__(self):
+        self.orientation_vert = 0
+        self.coord_1 = Coordinate
+        self.coord_2 = Coordinate
 
 
 # start with a 5 by 5 board filled with "O"s
@@ -152,7 +157,8 @@ for current_turn in range(number_turns):
             board_info[guess.y][guess.x] = "X"
         if current_turn == number_turns - 1:
             print("You have ran out of turns. The game is over!")
-            print("The ship was at row %d and column %d" % ship.y, ship.x) # later change it to show the board with all ships highlighted
+            print("The ship was at row %d and column %d" % ship.y,
+                  ship.x)  # later change it to show the board with all ships highlighted
         print_board()
 
         # Your print statement should should update how many ships are remaining and how many are sunk from your set of
