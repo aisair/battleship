@@ -6,7 +6,6 @@
 from prettytable import PrettyTable
 from colorama import init, Fore
 import random
-import time
 
 init()  # initiate colorama for colorful text
 
@@ -23,10 +22,16 @@ class Coordinate:
 
 
 class Ship:
+    orientation = 0
+    coord = Coordinate
+    coord_2 = Coordinate
+    length = 0
+
     def __init__(self):
-        self.orientation_vert = 0
-        self.coord_1 = Coordinate
+        self.coord = Coordinate
         self.coord_2 = Coordinate
+        self.length = 0
+        self.orientation = 0
 
 
 # start with a 5 by 5 board filled with "O"s
@@ -60,50 +65,32 @@ def print_board(init_board=0):
 
 # boardinfo is stylized board_info[y][x]
 def place_ship_random(size):
-    random_x = random.randint(0, len(board_info[0]) - 1)
-    random_y = random.randint(0, len(board_info) - 1)
+    random_coord = Coordinate
+    random_coord.x = random.randint(0, len(board_info[0]) - 1)
+    random_coord.y = random.randint(0, len(board_info) - 1)
+    print(random_coord.x, random_coord.y)
+    ship.coord = random_coord
+    ship.length = size
     if size > 1:
         if random.randint(0, 1) == 1:  # vertical
-            ship.orientation_vert = 1
-            if (random_y + size) < len(board_info):
-                ship.coord_1[0] = random_x
-                ship.coord_1[1] = random_y
-                ship.coord_2[0] = random_x
-                ship.coord_2[1] = random_y + (size - 1)
-            elif (random_y - size) < len(board_info):
-                ship.coord_1[0] = random_x
-                ship.coord_1[1] = random_y
-                ship.coord_2[0] = random_x
-                ship.coord_2[1] = random_y - (size - 1)
-            else:
-                return "not possible!"
+            if (random_coord.y + size) < len(board_info):
+                ship.orientation = 2
+            elif (random_coord.y - size) < len(board_info):
+                ship.orientation = 0
         else:  # horizontal
-            ship.orientation_vert = 0
-            if (random_x + size) < len(board_info[0]):
-                ship.coord_1[0] = random_x
-                ship.coord_1[1] = random_y
-                ship.coord_2[0] = random_x + (size - 1)
-                ship.coord_2[1] = random_y
-            elif (random_x - size) < len(board_info[0]):
-                ship.coord_1[0] = random_x
-                ship.coord_1[1] = random_y
-                ship.coord_2[0] = random_x - (size - 1)
-                ship.coord_2[1] = random_y
-            else:
-                return "not possible!"
-    elif size == 1:
-        ship.coord_1[0] = random_x
-        ship.coord_1[1] = random_y
-        ship.coord_2 = ship.coord_1
+            if (random_coord.x + size) < len(board_info[0]):
+                ship.orientation = 1
+            elif (random_coord.x - size) < len(board_info[0]):
+                ship.orientation = 3
 
 
 print("Welcome to Battleship! There is one ship that is one unit long.\nThe board is a 5 x 5 grid. You will get",
       number_turns, "guesses to find the ship. Good luck!")
 
 print_board(1)  # initiating game board
-place_ship_random(3)
+place_ship_random(1)
 
-print("coord1:", ship.coord_1, "\ncoord2:", ship.coord_2)
+print("co-ord:", ship.coord.x, ship.coord.y, "\nlength:", ship.length, "\norientation:", ship.orientation)
 # Start the game play. If  you want to add delays, so the game plays more naturally use time.sleep(seconds)
 
 # We need to randomly place the ship on the board. The x-coordinate should have value between 0 and 4. If this were a
@@ -135,15 +122,20 @@ for current_turn in range(number_turns):
             "d": 3,
             "e": 4,
         }
-        guess.x = switch.get(guess_string[0])
-        guess.y = int(guess.y) - 1
+        guess.y = switch.get(guess_string[0])
+        guess.x = int(guess_string[1]) - 1
 
     # Check if the guess is a hit or a miss, or not on the board.
     # When you build the game make sure to let them know if they already guessed that spot.
-
-    if guess.x == range(ship.coord_1[0], ship.coord_2[0]) and guess.y == range(ship.coord_1[1], ship.coord_2[1]):
-        board_info[guess.y][guess.x] = Fore.RED + "X" + Fore.RESET
-        # This is a hit
+    print("x guess:", guess.x, "y guess:", guess.y, "x pos:", ship.coord.x, "y pos:", ship.coord.y)
+    if guess.x in range(ship.coord.x, ship.coord.x + ship.length - 1) and guess.y in range(ship.coord.y,
+            ship.coord.y + ship.length - 1):
+        board_info[guess.y][guess.x] = Fore.RED + "X" + Fore.RESET  # mark hit
+        print_board()
+        print(Fore.RED + "HIT!" + Fore.RESET)
+        break
+    elif guess.x == ship.coord.x and guess.y == ship.coord.y:
+        board_info[guess.y][guess.x] = Fore.RED + "X" + Fore.RESET  # mark hit
         print_board()
         print("You sank my battleship!")
         break
