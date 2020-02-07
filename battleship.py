@@ -23,13 +23,11 @@ class Coordinate:
 
 class Ship:
     orientation = 0
-    coord = Coordinate
-    coord_2 = Coordinate
+    coord = Coordinate()
+    coord_2 = Coordinate()
     length = 0
 
     def __init__(self):
-        self.coord = Coordinate
-        self.coord_2 = Coordinate
         self.length = 0
         self.orientation = 0
 
@@ -63,12 +61,11 @@ def print_board(init_board=0):
     print(game_board)
 
 
-# boardinfo is stylized board_info[y][x]
+# board_info is stylized board_info[y][x]
 def place_ship_random(size):
-    random_coord = Coordinate
+    random_coord = Coordinate()
     random_coord.x = random.randint(0, len(board_info[0]) - 1)
     random_coord.y = random.randint(0, len(board_info) - 1)
-    print(random_coord.x, random_coord.y)
     ship.coord = random_coord
     ship.length = size
     if size > 1:
@@ -84,32 +81,28 @@ def place_ship_random(size):
                 ship.orientation = 3
 
 
-print("Welcome to Battleship! There is one ship that is one unit long.\nThe board is a 5 x 5 grid. You will get",
-      number_turns, "guesses to find the ship. Good luck!")
+print("Welcome to Battleship! There is one ship that is", ship.length + 1, "unit(s) long.\nThe board is a 5 x 5 grid. "
+                                                                           "You will get", number_turns, "guesses to "
+                                                                                                         "find the "
+                                                                                                         "ship. Good "
+                                                                                                         "luck!")
 
 print_board(1)  # initiating game board
 place_ship_random(1)
 
-print("co-ord:", ship.coord.x, ship.coord.y, "\nlength:", ship.length, "\norientation:", ship.orientation)
+print(Fore.RED + "DEBUG:\nShip Location:\nco-ord:", ship.coord.x, ship.coord.y, "\nlength:", ship.length,
+      "\norientation:", ship.orientation, Fore.RESET)
 # Start the game play. If  you want to add delays, so the game plays more naturally use time.sleep(seconds)
 
 # We need to randomly place the ship on the board. The x-coordinate should have value between 0 and 4. If this were a
 # C, B or A level project you would also have to randomly choose vertical or horizontal
-
-# The C level will need an extra function and variable to keep track of vertical or horizontal for the 3 x 1 ship.
-
-# For Testing Where Is The Ship?
-
 # For the higher level projects, you will need to make sure the ships do not go off the board, and do not overlap.
-
-# The next 2 lines are to check where the ship is being placed. so should be removed for final game
-
 
 # Let the player guess where the ship is. For the basic game we will let the player input integers, but for the real
 # battleship game, you will need to enter inputs as "C4" or "D5". so the this row input should be a letter in the
 # version you build.
 for current_turn in range(number_turns):
-    guess = Coordinate
+    guess = Coordinate()
     print("You are on turn ", current_turn + 1, "of", number_turns)
     guess_string = input("Input guess: (ex. A1) ")
     if len(guess_string) != 2:
@@ -122,14 +115,13 @@ for current_turn in range(number_turns):
             "d": 3,
             "e": 4,
         }
-        guess.y = switch.get(guess_string[0])
+        guess.y = switch.get(guess_string[0].lower(), "INVALID")
+        if guess.y == "INVALID":
+            print("invalid input!")
+            break
         guess.x = int(guess_string[1]) - 1
-
-    # Check if the guess is a hit or a miss, or not on the board.
-    # When you build the game make sure to let them know if they already guessed that spot.
-    print("x guess:", guess.x, "y guess:", guess.y, "x pos:", ship.coord.x, "y pos:", ship.coord.y)
-    if guess.x in range(ship.coord.x, ship.coord.x + ship.length - 1) and guess.y in range(ship.coord.y,
-            ship.coord.y + ship.length - 1):
+    if guess.x in range(ship.coord.x, ship.coord.x + ship.length - 1) and guess.y in \
+            range(ship.coord.y, ship.coord.y + ship.length - 1):
         board_info[guess.y][guess.x] = Fore.RED + "X" + Fore.RESET  # mark hit
         print_board()
         print(Fore.RED + "HIT!" + Fore.RESET)
