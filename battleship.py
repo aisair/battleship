@@ -38,6 +38,13 @@ board_rows = 5
 board_columns = 5
 board_info = []
 ship = Ship
+lettertrans = {
+    "a": 0,
+    "b": 1,
+    "c": 2,
+    "d": 3,
+    "e": 4,
+}
 
 
 def print_board(init_board=0):
@@ -108,45 +115,38 @@ for current_turn in range(number_turns):
     if len(guess_string) != 2:
         print("The guess is not valid!")
     else:
-        switch = {
-            "a": 0,
-            "b": 1,
-            "c": 2,
-            "d": 3,
-            "e": 4,
-        }
-        guess.y = switch.get(guess_string[0].lower(), "INVALID")
+        guess.y = lettertrans.get(guess_string[0].lower(), "INVALID")
         if guess.y == "INVALID":
             print("invalid input!")
             break
         guess.x = int(guess_string[1]) - 1
-    if guess.x in range(ship.coord.x, ship.coord.x + ship.length - 1) and guess.y in \
-            range(ship.coord.y, ship.coord.y + ship.length - 1):
+    if (ship.orientation == 0 and guess.x == ship.coord.x and guess.y in range(ship.coord.y - (ship.length - 1),
+                                                                               ship.coord.y + 1)) or (
+            ship.orientation == 1 and guess.x in range(ship.coord.x,
+                                                       ship.coord.x + ship.length) and guess.y == ship.coord.y) or (
+            ship.orientation == 2 and guess.x == ship.coord.x and guess.y in range(ship.coord.y + (ship.length - 1),
+                                                                                   ship.coord.y + 1)) or (
+            ship.orientation == 3 and guess.x in range(ship.coord.x - (ship.length - 1),
+                                                       ship.coord.x + 1) and guess.y == ship.coord.y):
+        # guess.x in range(ship.coord.x, ship.coord.x + ship.length - 1) and guess.y in range(ship.coord.y, ship.coord.y
+        # + ship.length - 1):
         board_info[guess.y][guess.x] = Fore.RED + "X" + Fore.RESET  # mark hit
         print_board()
-        print(Fore.RED + "HIT!" + Fore.RESET)
-        break
-    elif guess.x == ship.coord.x and guess.y == ship.coord.y:
-        board_info[guess.y][guess.x] = Fore.RED + "X" + Fore.RESET  # mark hit
-        print_board()
-        print("You sank my battleship!")
-        break
+        print(Fore.RED + "Hit!\nYou hit my ship at (" + str(guess.x + 1) + ", " + str(guess.y + 1) + ")." + Fore.RESET)
     else:
-        if guess.y not in range(len(board_info)) or guess.x not in range(len(board_info[0])):
+        if guess.y not in range(len(board_info)) or guess.x not in range(len(board_info[0])):  # not on board
             print("You missed the ocean!")
-        elif board_info[guess.y][guess.x] == "X":
+        elif board_info[guess.y][guess.x] == "X":  # already guessed
             print("You already guessed that location!")
-        else:
+        else:  # on board but not guessed yet
             print("You missed my battleship!")
             board_info[guess.y][guess.x] = "X"
         if current_turn == number_turns - 1:
             print("You have ran out of turns. The game is over!")
-            print("The ship was at row %d and column %d" % ship.y,
-                  ship.x)  # later change it to show the board with all ships highlighted
+            print("The ship was at row %d and column %d" % ship.coord.y, ship.coord.x)
+            # later change it to show the board with all ships highlighted
         print_board()
 
         # Your print statement should should update how many ships are remaining and how many are sunk from your set of
         # ships.
         print("You have one ship remaining. It is a 1 x 1 unit.")
-
-# Convert Letters to numbers.
