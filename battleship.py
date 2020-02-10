@@ -4,9 +4,6 @@ import random
 
 init()  # initiate colorama for colorful text
 
-number_turns = 12
-number_hits = 0
-
 
 class Coordinate:
     x = 0
@@ -21,6 +18,8 @@ class Ship:
 
 
 # start with a 5 by 5 board filled with "O"s
+number_turns = 12
+number_hits = 0
 game_board = PrettyTable()
 board_rows = 5
 board_columns = 5
@@ -43,7 +42,7 @@ number_to_letter = {
 }
 
 
-def print_board(init_board=0):  # change this to be less brute forcey (more methodical) & use python string library
+def print_board(init_board=0):
     if init_board == 1:
         game_board.field_names = ["", "1", "2", "3", "4", "5"]
         i = 0
@@ -54,7 +53,7 @@ def print_board(init_board=0):  # change this to be less brute forcey (more meth
                 board_info[i].append("O")
                 j += 1
             i += 1
-
+    # change this to be less brute forcey (more methodical) & use python string library
     game_board.clear_rows()
     game_board.add_row(["A", board_info[0][0], board_info[0][1], board_info[0][2], board_info[0][3], board_info[0][4]])
     game_board.add_row(["B", board_info[1][0], board_info[1][1], board_info[1][2], board_info[1][3], board_info[1][4]])
