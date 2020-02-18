@@ -17,7 +17,7 @@ class Ship:
 
 
 class Board:
-    length = 0
+    width = 0
     height = 0
     game = PrettyTable()
     info = []
@@ -28,8 +28,8 @@ number_turns = 12
 number_hits = 0
 # board vars
 board = Board()
-board.height = 10
-board.width = 10
+board.height = 5
+board.width = 5
 # ship vars
 ship = [Ship()]
 ship[0].length = 3
@@ -124,7 +124,7 @@ for current_turn in range(number_turns):
             print(Fore.GREEN + "the ship sunk!\ncongratulations, you won the game!" + Fore.RESET)
             break
     else:
-        if guess.y not in range(len(board.info)) or guess.x not in range(len(board.info[0])):  # not on board
+        if guess.y not in range(board.height) or guess.x not in range(board.width):  # not on board
             print("you missed the ocean!")
         elif board.info[guess.y][guess.x] in ("X", Fore.RED + "X" + Fore.RESET):  # already guessed
             print("you already guessed that location!")
