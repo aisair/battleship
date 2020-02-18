@@ -128,7 +128,7 @@ place_ship_random(2)
 for ship_index in ships:
     total_hits += ship_index.length
 print(
-    "welcome to battleship!\nthe board is a {board_width} x {board_height} grid.\nthere is {number} ship that have a "
+    "welcome to battleship!\nthe board is a {board_width} x {board_height} grid.\nthere are {number} ships that have a "
     "combined length of {ship_lengths} units.\nyou will get {turns} guesses to find the ship.\ngood "
     "luck!".format(number=number_ships, ship_lengths=total_hits, board_width=board.width, board_height=board.height,
                    turns=number_turns))
@@ -148,14 +148,14 @@ for current_turn in range(number_turns - 1):
             guess.x = int(guess_string[1:]) - 1
             guess.y = letter_to_number.get(guess_string[0].lower())
             hit = 0
-            for current_ship in [ships[0], ships[1]]:
+            for current_ship in ships:
                 if (current_ship.orientation == 0 and guess.x == current_ship.coord.x and guess.y in range(
                         current_ship.coord.y - (current_ship.length - 1), current_ship.coord.y + 1)) or (
                         current_ship.orientation == 2 and guess.x == current_ship.coord.x and guess.y in range(
-                    current_ship.coord.y, current_ship.coord.y + ships[0].length)) or (
+                        current_ship.coord.y, current_ship.coord.y + ships[0].length)) or (
                         current_ship.orientation == 3 and guess.x in range(
-                    current_ship.coord.x - (current_ship.length - 1),
-                    current_ship.coord.x + 1) and guess.y == current_ship.coord.y) or (
+                        current_ship.coord.x - (current_ship.length - 1),
+                        current_ship.coord.x + 1) and guess.y == current_ship.coord.y) or (
                         current_ship.orientation == 1 and guess.x in range(current_ship.coord.x,
                                                                            current_ship.coord.x + current_ship.length) and guess.y ==
                         ships[0].coord.y):  # check if player hit a ship
