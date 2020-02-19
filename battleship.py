@@ -16,6 +16,7 @@ class Ship:
         self.coord = Coordinate()
         self.orientation = 0
         self.length = length
+        self.damage = 0
 
 
 class Board:
@@ -39,10 +40,7 @@ number_ships_player = 3
 player_board = Board()  # player attacks from player_board.info, player sets ships on player_board.state
 computer_board = Board()  # computer attacks from computer_board.info, computer sets ships on computer_board.state
 # ship vars
-computer_ships = []
-computer_ships.append(Ship(3))
-computer_ships.append(Ship(4))
-computer_ships.append(Ship(5))
+computer_ships = [Ship(3), Ship(4), Ship(5)]
 player_ships = []
 # dictionaries: currently empty but get filled during game board initiation
 letter_to_number = {}
@@ -152,7 +150,7 @@ def player_place():
             if len(place_input_string) < 2 or place_input_string[0] not in letter_to_number or re.search('[^0-9]a1',
                                                                                                          place_input_string[
                                                                                                          1:]) or int(
-                    place_input_string[1:]) - 1 not in number_to_letter:
+                place_input_string[1:]) - 1 not in number_to_letter:
                 print("invalid location!")
                 valid_input = 0
             else:
@@ -274,6 +272,7 @@ print_state_board(player_board)
 print("those are your ships!")
 
 while comp_hits != total_comp_hits:
+    turn += 1
     guess = Coordinate()
     guess.x = None
     guess.y = None
@@ -299,13 +298,16 @@ while comp_hits != total_comp_hits:
                                                                            current_ship.coord.x + current_ship.length) and guess.y ==
                         computer_ships[0].coord.y):  # check if player hit a ship
                     hit = 1
-                    if player_board.info[guess.x][
-                        guess.y] == "":  # check if the player hasn't already guessed that spot
+                    if player_board.info[guess.x][guess.y] == "":  # check if player hasn't already guessed that spot
                         player_board.info[guess.x][guess.y] = Fore.RED + "\u2327" + Fore.RESET  # mark hit
                         number_hits += 1
+                        current_ship.damage += 1
                         print_board(player_board)
                         print(Fore.RED + "hit!\nyou hit one of my ships at " + number_to_letter[guess.y] + str(
                             guess.x + 1) + "." + Fore.RESET)
+                        if current_ship.damage == current_ship.length:
+                            print(Fore.RED + "my {length} unit ship sunk!".format(
+                                length=current_ship.length) + Fore.RESET)
                     else:  # if the player already guessed that spot
                         print_board(player_board)
                         print("you seem to have hit the same spot on a ship.\nno damage taken.")
@@ -324,7 +326,7 @@ while comp_hits != total_comp_hits:
                 elif player_board.info[guess.x][guess.y] in ("-", Fore.RED + "X" + Fore.RESET):  # already guessed
                     print("you already guessed that location!")
                 else:  # on board but not guessed yet
-                    print("you missed my battleship!")
+                    print("you missed!")
                     player_board.info[guess.x][guess.y] = "-"
                 print_board(player_board)
     comp_guess = Coordinate()
