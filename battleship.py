@@ -1,3 +1,4 @@
+import copy
 from prettytable import PrettyTable
 from colorama import init, Fore
 from string import ascii_uppercase, ascii_lowercase
@@ -6,39 +7,36 @@ import re
 
 
 class Coordinate:
-    x = 0
-    y = 0
+    def __init__(self):
+        self.x = 0
+        self.y = 0
 
 
 class Ship:
-    coord = Coordinate()
-    orientation = 0
-    length = 0
+    def __init__(self, coord, length, orientation):
+        self.coord = coord
+        self.orientation = orientation
+        self.length = length
+        self.damage = 0
 
 
 class Board:
-    width = 0
-    height = 0
-    info = []  # board visual contents
-    state = []  # shows ship locations
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.info = []  # board visual contents
+        self.state = []  # shows ship locations
 
 
 # game vars
 number_turns = 70
+number_ships = 3
 number_hits = 0
 total_hits = 0
-number_ships = 3
 # board vars
-board = Board()
-board.height = 10
-board.width = 10
-# ship vars
+player_board = Board(10, 10)
+# ship var
 ships = []
-for _ in range(number_ships):
-    ships.append(Ship())
-ships[0].length = 3
-ships[1].length = 4
-ships[2].length = 5
 # dictionaries: currently empty but get filled during game board initiation
 letter_to_number = {}
 number_to_letter = {}
@@ -50,87 +48,93 @@ def print_board():
     for char in ascii_uppercase[:10]:
         column_labels.append(char)
     game_board.add_column("", column_labels)
-    for x_index in range(board.width):
-        game_board.add_column(str(x_index + 1), board.info[x_index])
+    for x_index in range(player_board.width):
+        game_board.add_column(str(x_index + 1), player_board.info[x_index])
     print(game_board)
 
 
-# board.info is stylized board.info[y][x]
-def place_ship_random(index):
-    orientation = 0
-    size = ships[index].length
+def generate_ship_random(length):  # generates and returns a random but valid Ship object
     random_coord = Coordinate()
+    orientation = 0
     valid = 0
     while valid == 0:
         valid = 1
-        random_coord.x = random.randint(0, len(board.info[0]) - 1)
-        random_coord.y = random.randint(0, len(board.info) - 1)
-        if size > 1:
-            # check if ships are inside the board
+        random_coord.x = random.randint(0, player_board.width - 1)
+        random_coord.y = random.randint(0, player_board.height - 1)
+        if length > 1:  # check if ships are inside the board and not overlapping
             if random.randint(0, 1) == 1:  # vertical
-                if (random_coord.y - size) > -2:
-                    for size_check_index in range(size - 1):
-                        if board.state[random_coord.x][random_coord.y - size_check_index] == 1:
-                            valid = 0
-                    if valid == 1:
-                        for state_update_index in range(size - 1):
-                            board.state[random_coord.x][random_coord.y - state_update_index] = 1
+                if (random_coord.y - length) > -2:  # up
                     orientation = 0
-                elif (random_coord.y + size) < board.height:
-                    for size_check_index in range(size - 1):
-                        if board.state[random_coord.x][random_coord.y + size_check_index] == 1:
+                    for length_check_index in range(length - 1):
+                        if player_board.state[random_coord.x][random_coord.y - length_check_index] == 1:
                             valid = 0
-                    if valid == 1:
-                        for state_update_index in range(size - 1):
-                            board.state[random_coord.x][random_coord.y + state_update_index] = 1
+                elif (random_coord.y + length) < player_board.height:  # down
                     orientation = 2
+                    for length_check_index in range(length - 1):
+                        if player_board.state[random_coord.x][random_coord.y + length_check_index] == 1:
+                            valid = 0
             else:  # horizontal
-                if (random_coord.x + size) < board.width:
-                    for size_check_index in range(size - 1):
-                        if board.state[random_coord.x + size_check_index][random_coord.y] == 1:
-                            valid = 0
-                    if valid == 1:
-                        for state_update_index in range(size - 1):
-                            board.state[random_coord.x + state_update_index][random_coord.y] = 1
+                if (random_coord.x + length) < player_board.width:  # right
                     orientation = 1
-                elif (random_coord.x - size) > -2:
-                    for size_check_index in range(size - 1):
-                        if board.state[random_coord.x - size_check_index][random_coord.y] == 1:
+                    for length_check_index in range(length - 1):
+                        if player_board.state[random_coord.x + length_check_index][random_coord.y] == 1:
                             valid = 0
-                    if valid == 1:
-                        for state_update_index in range(size - 1):
-                            board.state[random_coord.x - state_update_index][random_coord.y] = 1
+                elif (random_coord.x - length) > -2:  # left
                     orientation = 3
-    ships[index].coord = random_coord
-    ships[index].orientation = orientation
+                    for length_check_index in range(length - 1):
+                        if player_board.state[random_coord.x - length_check_index][random_coord.y] == 1:
+                            valid = 0
+    return Ship(random_coord, length, orientation)
+
+
+def update_state_ship(ship, board):  # updates a state board with a ship
+    for state_update_index in range(ship.length):
+        if ship.orientation == 0:
+            board.state[ship.coord.x][ship.coord.y - state_update_index] = 1
+        elif ship.orientation == 1:
+            board.state[ship.coord.x + state_update_index][ship.coord.y] = 1
+        elif ship.orientation == 2:
+            board.state[ship.coord.x][ship.coord.y + state_update_index] = 1
+        elif ship.orientation == 3:
+            board.state[ship.coord.x - state_update_index][ship.coord.y] = 1
 
 
 init()  # initiate Colorama for colorful text
+
 # define dictionaries
-if board.width > board.height:
-    for number in range(board.width):
+if player_board.width > player_board.height:
+    for number in range(player_board.width):
         number_to_letter[number] = ascii_lowercase[number]
         letter_to_number[ascii_lowercase[number]] = number
 else:
-    for number in range(board.height):
+    for number in range(player_board.height):
         number_to_letter[number] = ascii_lowercase[number]
         letter_to_number[ascii_lowercase[number]] = number
-# insert "O" into every cell of board.info and 0 into every cell of board.state
-for board_x in range(board.width):
-    board.info.append([])
-    board.state.append([])
-    for _ in range(board.height):
-        board.info[board_x].append("O")
-        board.state[board_x].append(0)
-place_ship_random(0)
-place_ship_random(1)
-place_ship_random(2)
+
+# insert blank character into every cell of board.info and 0 into every cell of board.state
+for board_x in range(player_board.width):
+    player_board.info.append([])
+    player_board.state.append([])
+    for _ in range(player_board.height):
+        player_board.info[board_x].append("")
+        player_board.state[board_x].append(0)
+
+# generate random ships, store them in ships array, and mark them on the state board
+ships.append(generate_ship_random(3))
+update_state_ship(ships[-1], player_board)
+ships.append(generate_ship_random(4))
+update_state_ship(ships[-1], player_board)
+ships.append(generate_ship_random(5))
+update_state_ship(ships[-1], player_board)
+
 for ship_index in ships:
     total_hits += ship_index.length
+
 print(
     "welcome to battleship!\nthe board is a {board_width} x {board_height} grid.\nthere are {number} ships that have a "
     "combined length of {ship_lengths} units.\nyou will get {turns} guesses to find the ship.\ngood "
-    "luck!".format(number=number_ships, ship_lengths=total_hits, board_width=board.width, board_height=board.height,
+    "luck!".format(number=number_ships, ship_lengths=total_hits, board_width=player_board.width,
+                   board_height=player_board.height,
                    turns=number_turns))
 print_board()  # print the game board
 
@@ -160,12 +164,17 @@ for current_turn in range(number_turns - 1):
                                                                            current_ship.coord.x + current_ship.length) and guess.y ==
                         ships[0].coord.y):  # check if player hit a ship
                     hit = 1
-                    if board.info[guess.x][guess.y] == "O":  # check if the player hasn't already guessed that spot
-                        board.info[guess.x][guess.y] = Fore.RED + "X" + Fore.RESET  # mark hit
+                    if player_board.info[guess.x][
+                        guess.y] == "":  # check if the player hasn't already guessed that spot
+                        player_board.info[guess.x][guess.y] = Fore.RED + "\u2327" + Fore.RESET  # mark hit
+                        current_ship.damage += 1
                         number_hits += 1
                         print_board()
                         print(Fore.RED + "hit!\nyou hit one of my ships at " + number_to_letter[guess.y] + str(
                             guess.x + 1) + "." + Fore.RESET)
+                        if current_ship.damage == current_ship.length:
+                            print(Fore.GREEN + "you sunk my ship! it was {length} units long.".format(
+                                length=current_ship.length) + Fore.RESET)
                     else:  # if the player already guessed that spot
                         print_board()
                         print("you seem to have hit the same spot on a"
@@ -178,28 +187,29 @@ for current_turn in range(number_turns - 1):
                                            "{secret}".format(turns=current_turn + 1, secret=secret_string) + Fore.RESET)
                         exit()
             if hit == 0:
-                if guess.x not in range(len(board.info)) or guess.y not in range(len(board.info[0])):  # not on board
+                if guess.x not in range(len(player_board.info)) or guess.y not in range(
+                        len(player_board.info[0])):  # not on board
                     print("you missed the ocean!")
-                elif board.info[guess.x][guess.y] in ("-", Fore.RED + "X" + Fore.RESET):  # already guessed
+                elif player_board.info[guess.x][guess.y] in ("-", Fore.RED + "X" + Fore.RESET):  # already guessed
                     print("you already guessed that location!")
                 else:  # on board but not guessed yet
                     print("you missed my battleship!")
-                    board.info[guess.x][guess.y] = "-"
+                    player_board.info[guess.x][guess.y] = "-"
                 print_board()
 print("you have ran out of turns. the game is over!")
 for ship_index in ships:
     for i in range(ship_index.length):
         if ship_index.orientation == 0:
-            if board.info[ship_index.coord.x][ship_index.coord.y - i] == "O":
-                board.info[ship_index.coord.x][ship_index.coord.y - i] = Fore.GREEN + "X" + Fore.RESET
+            if player_board.info[ship_index.coord.x][ship_index.coord.y - i] == "O":
+                player_board.info[ship_index.coord.x][ship_index.coord.y - i] = Fore.GREEN + "X" + Fore.RESET
         if ship_index.orientation == 1:
-            if board.info[ship_index.coord.x + i][ship_index.coord.y] == "O":
-                board.info[ship_index.coord.x + i][ship_index.coord.y] = Fore.GREEN + "X" + Fore.RESET
+            if player_board.info[ship_index.coord.x + i][ship_index.coord.y] == "O":
+                player_board.info[ship_index.coord.x + i][ship_index.coord.y] = Fore.GREEN + "X" + Fore.RESET
         if ship_index.orientation == 2:
-            if board.info[ship_index.coord.x][ship_index.coord.y + i] == "O":
-                board.info[ship_index.coord.x][ship_index.coord.y + i] = Fore.GREEN + "X" + Fore.RESET
+            if player_board.info[ship_index.coord.x][ship_index.coord.y + i] == "O":
+                player_board.info[ship_index.coord.x][ship_index.coord.y + i] = Fore.GREEN + "X" + Fore.RESET
         if ship_index.orientation == 3:
-            if board.info[ship_index.coord.x - i][ship_index.coord.y] == "O":
-                board.info[ship_index.coord.x - i][ship_index.coord.y] = Fore.GREEN + "X" + Fore.RESET
+            if player_board.info[ship_index.coord.x - i][ship_index.coord.y] == "O":
+                player_board.info[ship_index.coord.x - i][ship_index.coord.y] = Fore.GREEN + "X" + Fore.RESET
 print_board()
 print("ship locations are highlighted in green x.")
