@@ -330,13 +330,18 @@ while comp_hits != total_comp_hits:
                     player_board.info[guess.x][guess.y] = "-"
                 print_board(player_board)
     comp_guess = Coordinate()
-    comp_guess.x = randint(0, player_board.width - 1)
-    comp_guess.y = randint(0, player_board.height - 1)
-    if player_board.state[comp_guess.x][comp_guess.y] == 1:
-        player_board.state[comp_guess.x][comp_guess.y] = 2
-        comp_hits += 1
-    elif player_board.state[comp_guess.x][comp_guess.y] == 0:
-        player_board.state[comp_guess.x][comp_guess.y] = 3
+    valid = 0
+    while valid == 0:
+        valid = 1
+        comp_guess.x = randint(0, player_board.width - 1)
+        comp_guess.y = randint(0, player_board.height - 1)
+        if player_board.state[comp_guess.x][comp_guess.y] == 1:
+            player_board.state[comp_guess.x][comp_guess.y] = 2
+            comp_hits += 1
+        elif player_board.state[comp_guess.x][comp_guess.y] == 3:
+            valid = 0
+        elif player_board.state[comp_guess.x][comp_guess.y] == 0:
+            player_board.state[comp_guess.x][comp_guess.y] = 3
     print("the computer guessed and got this:")
     print_state_board(player_board)
 print(Fore.RED + "game over!\nthe computer sunk all of your ships!" + Fore.RESET)
